@@ -1,0 +1,10 @@
+venv/
+.env/
+*.env
+config.py
+*.db
+*.sqlite3
+# cache y archivos temporales
+__pycache__/
+*.pyc
+*.pyo
