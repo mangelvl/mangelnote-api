@@ -1,0 +1,14 @@
+[flake8]
+# Máxima longitud de línea compatible con Black.
+max-line-length = 88
+
+# Ignora ciertos errores que se generan al usar Black.
+extend-ignore = E203, W503
+
+# Excluye carpetas y archivos irrelevantes.
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .env,
