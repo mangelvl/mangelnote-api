@@ -14,16 +14,22 @@ def home():
 
     return render_template('home.html', mensaje="Flask Server On", estado_base_datos=mensaje_db)
 
-# Crear un nuevo usuario
-@app.route('/usuarios', methods=['POST'])
-def crear_usuario():
-    data = request.json
-    nuevo_usuario = Usuario(nombre=data["nombre"], email=data["email"], contraseña=data["contraseña"])
+# Manejo de usuarios (GET y POST)
+@app.route('/usuarios', methods=['GET', 'POST'])
+def manejar_usuarios():
+    if request.method == 'GET':
+        usuarios = Usuario.query.all()
+        resultado = [{"id": u.id, "nombre": u.nombre, "email": u.email} for u in usuarios]
+        return jsonify(resultado), 200
 
-    db.session.add(nuevo_usuario)
-    db.session.commit()
+    elif request.method == 'POST':
+        data = request.json
+        nuevo_usuario = Usuario(nombre=data["nombre"], email=data["email"], contraseña=data["contraseña"])
 
-    return jsonify({"mensaje": "Usuario creado correctamente"}), 201
+        db.session.add(nuevo_usuario)
+        db.session.commit()
+
+        return jsonify({"mensaje": "Usuario creado correctamente"}), 201
 
 # Obtener un usuario por ID
 @app.route('/usuarios/<int:usuario_id>', methods=['GET'])

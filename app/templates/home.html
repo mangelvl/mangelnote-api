@@ -2,10 +2,103 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Estado del Servidor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Server On</title>
+    <script>
+        async function cargarUsuarios() {
+            try {
+                let response = await fetch("/usuarios");
+                let usuarios = await response.json();
+                let tablaUsuarios = document.getElementById("tablaUsuarios");
+                let mensajeNoUsuarios = document.getElementById("mensajeNoUsuarios");
+
+                if (usuarios.length === 0) {
+                    mensajeNoUsuarios.style.display = "block";
+                    tablaUsuarios.style.display = "none";
+                } else {
+                    mensajeNoUsuarios.style.display = "none";
+                    tablaUsuarios.style.display = "block";
+
+                    let tbody = document.getElementById("tbodyUsuarios");
+                    tbody.innerHTML = "";
+                    usuarios.forEach(usuario => {
+                        let fila = `<tr>
+                            <td>${usuario.id}</td>
+                            <td>${usuario.nombre}</td>
+                            <td>${usuario.email}</td>
+                        </tr>`;
+                        tbody.innerHTML += fila;
+                    });
+
+                    // Cargar opciones en el buscador
+                    let selectUsuario = document.getElementById("buscarUsuario");
+                    selectUsuario.innerHTML = "<option value=''>Seleccione un usuario</option>";
+                    usuarios.forEach(usuario => {
+                        let option = `<option value="${usuario.id}">${usuario.nombre}</option>`;
+                        selectUsuario.innerHTML += option;
+                    });
+                }
+            } catch (error) {
+                console.error("Error al cargar usuarios:", error);
+            }
+        }
+
+        async function buscarNotas() {
+            let usuarioId = document.getElementById("buscarUsuario").value;
+            if (!usuarioId) return;
+
+            try {
+                let response = await fetch(`/usuarios/${usuarioId}/notas`);
+                let notas = await response.json();
+                let tablaNotas = document.getElementById("tablaNotas");
+
+                if (notas.length === 0) {
+                    tablaNotas.innerHTML = "<p>Este usuario no tiene notas registradas.</p>";
+                } else {
+                    let html = `<table border="1">
+                        <tr>
+                            <th>ID</th>
+                            <th>Título</th>
+                            <th>Contenido</th>
+                            <th>Fecha</th>
+                        </tr>`;
+                    notas.forEach(nota => {
+                        html += `<tr>
+                            <td>${nota.id}</td>
+                            <td>${nota.titulo}</td>
+                            <td>${nota.contenido}</td>
+                            <td>${nota.fecha}</td>
+                        </tr>`;
+                    });
+                    html += `</table>`;
+                    tablaNotas.innerHTML = html;
+                }
+            } catch (error) {
+                console.error("Error al buscar notas:", error);
+            }
+        }
+
+        window.onload = cargarUsuarios;
+    </script>
 </head>
 <body>
-    <h1>{{ mensaje }}</h1>
+    <h1>Flask Server On</h1>
     <p>Estado de la base de datos: {{ estado_base_datos }}</p>
+
+    <h2>Usuarios registrados</h2>
+    <p id="mensajeNoUsuarios" style="color: red; display: none;">No hay usuarios registrados.</p>
+
+    <table id="tablaUsuarios" border="1" style="display: none;">
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+        </tr>
+        <tbody id="tbodyUsuarios"></tbody>
+    </table>
+
+    <h2>Buscar usuario y ver sus notas</h2>
+    <select id="buscarUsuario" onchange="buscarNotas()"></select>
+    <div id="tablaNotas"></div>
 </body>
 </html>
